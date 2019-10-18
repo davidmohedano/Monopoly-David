@@ -5,6 +5,8 @@ public class Dado {
     private int dado2;
     private boolean iguales;
     private int posActual;
+    private int posSiguiente;
+    private int dadoTotal;
 
     public Dado() {
 
@@ -18,6 +20,10 @@ public class Dado {
         //ale = new Random(System.currentTimeMillis());
         dado.dado2 = (int) (Math.random() * 6 + 1);
 
+    }
+
+    public int getDadoTotal(){
+        return this.dadoTotal;
     }
 
     public Dado(Dado dado) throws InterruptedException {
@@ -38,18 +44,32 @@ public class Dado {
     }
 
     public void lanzarDados(Jugador jugador, Taboleiro taboleiro) throws InterruptedException {
-        int posSig;
         int dado;
 
         Casilla casillaSiguiente;
-        dado = lanzarLosDados();
+        this.dadoTotal = lanzarLosDados();
 
         this.posActual = jugador.getAvatar().getCasilla().getPosicion();
-        posSig = this.posActual + dado;
-        casillaSiguiente = taboleiro.getCasillaPosicion(posSig);
-
-        jugador.getAvatar().setCasilla(casillaSiguiente);
-
+        taboleiro.getCasillaPosicion(this.posActual).eliminarAvatar(jugador.getAvatar().getId());
+        this.posSiguiente = this.posActual + this.dadoTotal;
+        if(this.posSiguiente > 39){
+            jugador.sumarFortuna(Valor.VUELTA);
+            taboleiro.getCasillaPosicion(0).setVecesCasilla(jugador);
+            System.out.println("Has pasado por la casilla de salida, cobras: " + Valor.VUELTA + "€.");
+            if (taboleiro.getCasillaPosicion(0).isSubirPrecio()){
+                taboleiro.subirPrecios();
+            }
+        }
+        if (this.posSiguiente == 30){
+            jugador.irCarcere(taboleiro);
+            System.out.println("Caíste en la casilla Ir Cárcel, por lo que ahora estás en la cárcel.");
+        }
+        else {
+            this.posSiguiente = this.posSiguiente % 40;
+            casillaSiguiente = taboleiro.getCasillaPosicion(this.posSiguiente);
+            jugador.getAvatar().setCasilla(casillaSiguiente);
+        }
+        taboleiro.getCasillaPosicion(this.posSiguiente).setAvatar(jugador.getAvatar().getId(), jugador.getAvatar());
     }
 
     public boolean sonIguales() {
@@ -59,7 +79,8 @@ public class Dado {
     public String textoLanzarDados(Taboleiro taboleiro) {
         String texto;
         int sumaDados = this.dado1 + this.dado2;
-        texto = " avanza " + sumaDados + " posicións, dende " + taboleiro.getCasillaPosicion(posActual).getNombreSinEspacio() + " ata " + taboleiro.getCasillaPosicion(posActual + sumaDados).getNombreSinEspacio() + "."; // Falta pagaronse
+        texto = " avanza " + sumaDados + " posiciones, desde " + taboleiro.getCasillaPosicion(this.posActual).getNombreSinEspacio() +
+                " hasta " + taboleiro.getCasillaPosicion(this.posSiguiente).getNombreSinEspacio() + "."; // Falta pagaronse
         return texto;
     }
 

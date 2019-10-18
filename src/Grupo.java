@@ -41,6 +41,12 @@ public class Grupo {
         this.lado = lado;
     }
 
+    public Grupo(ArrayList<Casilla> casillas, String color, int numeroGrupo){
+        this.casillas = casillas;
+        this.numeroGrupo = numeroGrupo;
+        setColor(color);
+    }
+
     public ArrayList<Casilla> getCasillas(){
         return casillas;
     }
@@ -114,5 +120,14 @@ public class Grupo {
         } else
             texto = "O grupo todavía non se inicializou.";
         return texto;
+    }
+
+    public boolean equals(Object obj){
+        if (this.getNumeroGrupo() == ((Grupo) obj).getNumeroGrupo()){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 }
